@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropIQ Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body class="bg-green-50 font-sans">
+
+    <!-- Header -->
+    <div class="bg-green-700 text-white py-6 px-8 flex justify-between items-center shadow-lg">
+        <div>
+            <h1 class="text-3xl font-bold">🌾 CropIQ</h1>
+            <p class="text-green-200 text-sm mt-1">Every Farmer Deserves a Data Scientist</p>
+        </div>
+        <div class="text-right">
+            <p class="text-green-200 text-sm">Predict. Protect. Prosper.</p>
+            <p class="text-white font-bold" id="live-time"></p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-8">
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-2xl p-6 text-center shadow-md border-t-4 border-green-500">
+                <p class="text-5xl font-bold text-green-600" id="stat-farmers">{{ farmers }}</p>
+                <p class="text-gray-500 mt-2 font-medium">👨‍🌾 Farmers Helped</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-md border-t-4 border-blue-500">
+                <p class="text-5xl font-bold text-blue-600" id="stat-queries">{{ queries }}</p>
+                <p class="text-gray-500 mt-2 font-medium">💬 Queries Answered</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-md border-t-4 border-orange-500">
+                <p class="text-5xl font-bold text-orange-500" id="stat-cities">{{ cities }}</p>
+                <p class="text-gray-500 mt-2 font-medium">🏙️ Cities Covered</p>
+            </div>
+        </div>
+
+        <!-- Try CropIQ -->
+        <div class="bg-white rounded-2xl p-8 shadow-md mb-8">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">🧪 Try CropIQ Live</h2>
+            <p class="text-gray-400 mb-6">Enter crop and city to get instant AI farming advice</p>
+
+            <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">Crop Name</label>
+                    <input id="crop" placeholder="e.g. Onion, Tomato, Sugarcane"
+                        class="border-2 border-gray-200 rounded-xl p-3 w-full focus:border-green-400 focus:outline-none">
+                </div>
+                <div class="flex-1">
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">City</label>
+                    <select id="city" class="border-2 border-gray-200 rounded-xl p-3 w-full focus:border-green-400 focus:outline-none">
+                        <option>Nashik</option>
+                        <option>Pune</option>
+                        <option>Aurangabad</option>
+                        <option>Nagpur</option>
+                        <option>Solapur</option>
+                        <option>Kolhapur</option>
+                        <option>Ahmednagar</option>
+                        <option>Latur</option>
+                        <option>Jalgaon</option>
+                        <option>Satara</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="getAdvice()"
+                        class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition">
+                        Get Advice 🌾
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="hidden text-center py-6">
+                <div class="text-4xl animate-bounce">🌱</div>
+                <p class="text-gray-400 mt-2">CropIQ is analyzing weather and generating advice...</p>
+            </div>
+
+            <!-- Result -->
+            <div id="result" class="hidden bg-green-50 border-2 border-green-200 rounded-xl p-6 whitespace-pre-wrap text-gray-700 leading-relaxed"></div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="bg-white rounded-2xl p-8 shadow-md mb-8">
+            <h2 class="text-2xl font-bold text-gray-700 mb-6">⚙️ How CropIQ Works</h2>
+            <div class="grid grid-cols-5 gap-2 text-center">
+                <div class="bg-green-50 rounded-xl p-4">
+                    <div class="text-3xl mb-2">📱</div>
+                    <p class="text-sm font-bold text-green-700">Farmer WhatsApps</p>
+                    <p class="text-xs text-gray-400 mt-1">"Onion, Nashik"</p>
+                </div>
+                <div class="flex items-center justify-center text-2xl text-gray-300">→</div>
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <div class="text-3xl mb-2">🌤️</div>
+                    <p class="text-sm font-bold text-blue-700">Weather Fetched</p>
+                    <p class="text-xs text-gray-400 mt-1">7-day forecast</p>
+                </div>
+                <div class="flex items-center justify-center text-2xl text-gray-300">→</div>
+                <div class="bg-orange-50 rounded-xl p-4">
+                    <div class="text-3xl mb-2">🤖</div>
+                    <p class="text-sm font-bold text-orange-700">AI Gives Advice</p>
+                    <p class="text-xs text-gray-400 mt-1">In Marathi + English</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supported Cities Map -->
+        <div class="bg-white rounded-2xl p-8 shadow-md mb-8">
+            <h2 class="text-2xl font-bold text-gray-700 mb-6">🗺️ Maharashtra Coverage</h2>
+            <div class="grid grid-cols-5 gap-3">
+                {%for city in ["Nashik","Pune","Aurangabad","Nagpur","Solapur","Kolhapur","Ahmednagar","Latur","Jalgaon","Satara"] %}
+                <div class="bg-green-100 text-green-800 rounded-xl py-3 px-4 text-center font-medium text-sm">
+                    📍 {{ city }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-400 text-sm py-4">
+            <p>🌾 CropIQ — Built for Pune Agri Hackathon 2026</p>
+            <p class="mt-1">Every Farmer Deserves a Data Scientist</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Auto refresh stats every 5 seconds
+async function refreshStats() {
+    try {
+        const res = await fetch('/stats');
+        const data = await res.json();
+        document.getElementById('stat-farmers').innerText = data.farmers;
+        document.getElementById('stat-queries').innerText = data.queries;
+        document.getElementById('stat-cities').innerText = data.cities;
+    } catch (error) {
+        console.log('Stats refresh failed');
+    }
+}
+
+// Refresh every 5 seconds
+setInterval(refreshStats, 5000);
+refreshStats(); // Run immediately
+        // Live clock
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleTimeString('en-IN');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Get farming advice
+        async function getAdvice() {
+            const crop = document.getElementById('crop').value.trim();
+            const city = document.getElementById('city').value.trim();
+
+            if (!crop) {
+                alert('Please enter a crop name!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+
+            try {
+                const res = await fetch(`/advice?crop=${encodeURIComponent(crop)}&city=${encodeURIComponent(city)}`);
+                const data = await res.json();
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('result').innerText = data.advice;
+
+                // Update stats
+                document.getElementById('stat-queries').innerText =
+                    parseInt(document.getElementById('stat-queries').innerText) + 1;
+                document.getElementById('stat-farmers').innerText =
+                    parseInt(document.getElementById('stat-farmers').innerText) + 1;
+
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                alert('Error getting advice. Make sure the server is running!');
+            }
+        }
+
+        // Allow Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') getAdvice();
+        });
+    </script>
+
+</body>
+</html>
