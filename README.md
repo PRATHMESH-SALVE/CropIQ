@@ -64,9 +64,7 @@ Terminal 3: .\ngrok.exe http 5001
 3. Send: Hi
 4. Then send: Onion, Nashik
 
-## 🏆 Built For
-Pune Agri Hackathon 2026
-Theme: Climate-Resilient & Digital Agriculture
+
 
 ## 👨‍💻 Team
 CropIQ Team — Predict. Protect. Prosper.
